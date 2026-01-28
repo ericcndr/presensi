@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Absensi SMKN1MEJAYAN</title>
+  <meta name="description" content="Sistem absensi SMKN1MEJAYAN - Face ID & lokasi" />
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar py-3">
+    <div class="container d-flex align-items-center justify-content-between">
+      <div class="brand d-flex align-items-center gap-3">
+        <div class="logo-circle">SM</div>
+        <div>
+          <h1 class="h5 mb-0">Absensi SMKN1MEJAYAN</h1>
+          <small class="text-light-opacity">Face ID · Lokasi · Mobile-first</small>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-3">
+        <div class="top-clock text-light-opacity me-2" id="top-clock">--:--:--</div>
+        <div id="auth-area" class="d-flex align-items-center gap-2">
+          <button id="btn-open-login" class="btn btn-outline-light btn-sm">Masuk Siswa</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container py-4">
+    <div class="row gy-4">
+      <div class="col-12 col-lg-7">
+        <div class="card shadow-lg card-hero">
+          <div class="card-body p-3 p-sm-4">
+            <div class="d-flex align-items-start gap-3">
+              <div class="video-wrap flex-fill">
+                <video id="video" autoplay muted playsinline class="rounded"></video>
+              </div>
+
+              <div class="info-panel">
+                <h5 id="welcome-title" class="mb-1">Selamat Datang</h5>
+                <p id="welcome-sub" class="mb-3 text-muted small">Silakan masuk menggunakan akun siswa sebelum melakukan absensi.</p>
+
+                <div class="d-grid gap-2">
+                  <button id="btn-capture" class="btn btn-primary btn-lg" disabled>
+                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                    Absen Masuk
+                  </button>
+                  <button id="btn-checkout" class="btn btn-warning btn-lg text-dark" disabled>
+                    <i class="bi bi-box-arrow-right me-2"></i>
+                    Absen Pulang
+                  </button>
+                  <button id="btn-enroll" class="btn btn-outline-primary btn-lg" disabled>
+                    <i class="bi bi-person-plus me-2"></i>
+                    Simpan Wajah 
+                  </button>
+                </div>
+
+                <div class="mt-3 small text-muted">
+                  <div><strong>Batas waktu masuk:</strong> 07:45 — lewat itu dinyatakan TERLAMBAT tetapi tetap dapat input (jika di dalam jangkauan).</div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-3">
+
+            <div class="row g-2">
+              <div class="col-12 col-md-6">
+                <div class="stat-card p-3 rounded">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-success text-white"><i class="bi bi-clock-history"></i></div>
+                    <div>
+                      <small class="text-muted">Jam Saat Ini</small>
+                      <div id="display-time" class="fw-bold fs-6">-</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <div class="stat-card p-3 rounded">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-info text-white"><i class="bi bi-geo-alt-fill"></i></div>
+                    <div>
+                      <small class="text-muted">Lokasi (GPS)</small>
+                      <div id="display-loc" class="fw-bold fs-6">-</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SVG map -->
+            <div class="mt-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">Peta Lokal — SMKN1 Mejayan</h6>
+                <div class="small text-muted">Koordinat sekolah: <span id="school-coords">-</span></div>
+              </div>
+              <div id="map-wrapper" class="border rounded-3">
+                <svg id="mini-map" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid meet" style="width:100%;height:300px;background:linear-gradient(180deg,#e6f7ff05,#e6f7ff03)">
+                  <!-- drawn dynamically -->
+                </svg>
+              </div>
+
+              <div class="mt-2 d-flex gap-2 align-items-center">
+                <label class="form-label mb-0 small text-muted">Radius jangkauan (meter)</label>
+                <div id="radius-value" class="small text-muted ms-2">10000 m</div>
+              </div>
+
+              <div class="mt-2 small text-muted">
+                <div>Lokasi sekolah (merah) • Lokasi Anda (biru) • Lingkaran biru = radius jangkauan</div>
+                <div>Area: Sawah/Kebun, Pandean, Mejayan, Madiun Regency, East Java 63153</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-5">
+        <div class="card shadow-lg">
+          <div class="card-body">
+            <h6 class="mb-3">Akun Saya</h6>
+
+            <div id="account-area">
+              <div class="mb-3">
+                <div><strong>Nama:</strong> <span id="display-name">-</span></div>
+                <div><strong>NIS:</strong> <span id="display-nis">-</span></div>
+                <div><strong>Status Enroll:</strong> <span id="display-enroll">-</span></div>
+                <div><strong>Status Absensi Terakhir:</strong> <span id="display-last">-</span></div>
+              </div>
+
+              <div class="d-grid gap-2">
+                <button id="btn-open-login-2" class="btn btn-outline-secondary">Ganti Akun / Masuk</button>
+                <button id="btn-logout" class="btn btn-danger d-none">Keluar</button>
+              </div>
+
+              <hr>
+
+              <div id="account-actions" class="d-grid gap-2">
+                <button id="btn-delete-account" class="btn btn-outline-danger btn-sm d-none">Hapus Akun Ini</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="card mt-3 shadow-sm d-none" id="enroll-info-card">
+          <div class="card-body small">
+            <strong>Catatan Keamanan</strong>
+            <p class="mb-0 text-muted">Demo: penyimpanan wajah tersimpan di perangkat (localStorage). Untuk produksi diperlukan server aman, enkripsi, dan kebijakan privasi.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Login / Register Modal -->
+  <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 overflow-hidden">
+        <div class="modal-header border-0 p-3">
+          <h5 class="modal-title">Masuk / Daftar Akun Siswa</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body p-4">
+          <ul class="nav nav-tabs mb-3" id="authTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="tab-login" data-bs-toggle="tab" data-bs-target="#pane-login" type="button" role="tab">Login</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-register" data-bs-toggle="tab" data-bs-target="#pane-register" type="button" role="tab">Daftar</button>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="pane-login" role="tabpanel">
+              <div class="mb-3">
+                <label class="form-label">NIS</label>
+                <input id="login-nis" class="form-control" placeholder="Masukkan NIS">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Kata Sandi</label>
+                <input id="login-pass" type="password" class="form-control" placeholder="Kata sandi">
+              </div>
+              <div class="d-grid">
+                <button id="btn-login" class="btn btn-primary">Masuk</button>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="pane-register" role="tabpanel">
+              <div class="mb-3">
+                <label class="form-label">Nama Lengkap</label>
+                <input id="reg-name" class="form-control" placeholder="Nama">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">NIS</label>
+                <input id="reg-nis" class="form-control" placeholder="NIS unik">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Kata Sandi</label>
+                <input id="reg-pass" type="password" class="form-control" placeholder="Kata sandi">
+              </div>
+              <div class="d-grid">
+                <button id="btn-register" class="btn btn-outline-primary">Daftar & Masuk</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- face-api.js -->
+  <script src="https://unpkg.com/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="demo-accounts.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
