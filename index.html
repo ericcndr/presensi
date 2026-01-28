@@ -14,6 +14,14 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Toast type colors */
+    .toast-info { background: linear-gradient(90deg,#60a5fa,#7c3aed); color: #012; }
+    .toast-success { background: linear-gradient(90deg,#6ee7b7,#34d399); color: #012; }
+    .toast-warning { background: linear-gradient(90deg,#fbbf24,#fb923c); color: #012; }
+    .toast-danger { background: linear-gradient(90deg,#fb7185,#ef4444); color: #012; }
+    .toast .toast-body { font-weight: 600; }
+  </style>
 </head>
 <body>
   <header class="topbar py-3">
@@ -26,10 +34,20 @@
         </div>
       </div>
 
+      <!-- Akun dropdown/menu yang jelas -->
       <div class="d-flex align-items-center gap-3">
         <div class="top-clock text-light-opacity me-2" id="top-clock">--:--:--</div>
-        <div id="auth-area" class="d-flex align-items-center gap-2">
-          <button id="btn-open-login" class="btn btn-outline-light btn-sm">Masuk Siswa</button>
+
+        <div class="dropdown">
+          <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" id="accountMenuBtn" data-bs-toggle="dropdown" aria-expanded="false">
+            Akun
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountMenuBtn">
+            <li><button class="dropdown-item" id="btn-open-login">Masuk / Daftar</button></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><button class="dropdown-item d-none" id="btn-logout-top">Keluar</button></li>
+            <li><button class="dropdown-item" id="btn-seed-demo">Pasang Akun Demo</button></li>
+          </ul>
         </div>
       </div>
     </div>
@@ -60,7 +78,7 @@
                   </button>
                   <button id="btn-enroll" class="btn btn-outline-primary btn-lg" disabled>
                     <i class="bi bi-person-plus me-2"></i>
-                    Simpan Wajah 
+                    Simpan Wajah
                   </button>
                 </div>
 
@@ -222,11 +240,65 @@
     </div>
   </div>
 
+  <!-- Toast container (Bootstrap toasts) -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
   <!-- face-api.js -->
   <script src="https://unpkg.com/face-api.js@0.22.2/dist/face-api.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+  <!-- demo accounts (optional) -->
   <script src="demo-accounts.js"></script>
+
+  <!-- Replace default alert() with toast-based notification (non-blocking) -->
+  <script>
+    (function () {
+      const toastContainer = document.getElementById('toastContainer');
+
+      window.createToast = function(title, message, type = 'info', autohide = true, delay = 4500) {
+        try {
+          const toastId = 't' + Date.now() + Math.floor(Math.random() * 1000);
+          const wrapper = document.createElement('div');
+          wrapper.innerHTML = `
+            <div id="${toastId}" class="toast align-items-center text-white ${'toast-' + (type||'info')}" role="alert" aria-live="assertive" aria-atomic="true">
+              <div class="d-flex">
+                <div class="toast-body">
+                  <div style="font-size:13px;"><strong>${title}</strong></div>
+                  <div style="font-size:12px;opacity:0.95;">${String(message)}</div>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+              </div>
+            </div>`;
+          const el = wrapper.firstElementChild;
+          toastContainer.appendChild(el);
+          const bsToast = new bootstrap.Toast(el, { autohide: !!autohide, delay: delay });
+          bsToast.show();
+          el.addEventListener('hidden.bs.toast', () => el.remove());
+          return el;
+        } catch (e) {
+          console.error('createToast failed', e);
+          return null;
+        }
+      };
+
+      // Override window.alert to use toasts (keeps behavior non-blocking)
+      window._nativeAlert = window.alert.bind(window);
+      window.alert = function (msg) {
+        try {
+          createToast('Informasi', msg, 'info', true, 5000);
+        } catch (e) {
+          window._nativeAlert(msg);
+        }
+      };
+
+      // Optional: provide createDemoNotice hook (used by demo-accounts.js)
+      window.createDemoNotice = function (message) {
+        createToast('Akun Demo', message, 'success', true, 7000);
+      };
+    })();
+  </script>
+
+  <!-- main app (load after createToast so app.js alerts show as toast) -->
   <script src="app.js"></script>
 </body>
 </html>
